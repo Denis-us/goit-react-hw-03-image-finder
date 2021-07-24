@@ -3,7 +3,19 @@ import React, { Component } from "react";
 import Modal from "./components/Modal/Modal";
 
 class App extends Component {
+  state = {
+    showModal: false,
+  };
+
+  toggleModal = () => {
+    this.setState(({ showModal }) => ({
+      showModal: !showModal,
+    }));
+  };
+
   render() {
+    const { showModal } = this.state;
+
     return (
       <>
         {/* <Searchbar>
@@ -11,7 +23,7 @@ class App extends Component {
           <ImageGalleryItem>
             <Loader>
               <Button> */}
-        <Modal />
+        {showModal && <Modal />}
       </>
     );
   }
