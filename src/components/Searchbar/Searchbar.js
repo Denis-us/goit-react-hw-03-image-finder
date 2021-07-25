@@ -9,7 +9,7 @@ export default class Searchbar extends Component {
   };
 
   handleNameChange = (e) => {
-    this.setState({ pictures: e.currentTarget.value.toLowerCase() });
+    this.setState({ pictures: e.currentTarget.value });
   };
 
   handleSubmit = (e) => {
@@ -20,8 +20,12 @@ export default class Searchbar extends Component {
       return;
     }
 
+    // const gallery = this.props.pictures
+    // console.log("gallery", gallery)
+
     this.props.onSubmit(this.state.pictures);
-    this.setState({ pictures: "" });
+    // this.setState({ pictures: "" });
+    // console.log("pictures", this.state.pictures)
   };
 
   render() {
