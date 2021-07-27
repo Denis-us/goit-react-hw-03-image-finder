@@ -6,7 +6,7 @@ import axios from "axios";
 import Loader from "react-loader-spinner";
 
 import Searchbar from "./components/Searchbar/Searchbar";
-import ImageGallery from "./components/ImageGallery/ImageGallery";
+// import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Modal from "./components/Modal/Modal";
 import Button from "./components/Button/Button";
 
@@ -25,6 +25,7 @@ const CustomLoader = () => {
 class App extends Component {
   state = {
     pictures: [],
+    searchPictures: null,
     loading: false,
     showModal: false,
     error: null,
@@ -69,7 +70,7 @@ class App extends Component {
 
   fetchPictures = (page = 1) => {
     return axios.get(
-      `https://pixabay.com/api/?q=cat&page=${page}&key=22012184-6924baf220c56a628f4f15ef2&image_type=photo&orientation=horizontal&per_page=12`
+      `https://pixabay.com/api/?q=${this.state.pictures}&page=${page}&key=22012184-6924baf220c56a628f4f15ef2&image_type=photo&orientation=horizontal&per_page=12`
     );
   };
 
@@ -78,9 +79,9 @@ class App extends Component {
   };
 
   handleFormSubmit = (pictures) => {
-    // console.log("pictures", pictures)
+    console.log("pictures", pictures);
     // console.log(this.state.pictures)
-    this.setState({ pictures: pictures });
+    this.setState({ pictures });
   };
 
   toggleModal = () => {
@@ -104,7 +105,17 @@ class App extends Component {
         {error ? (
           <h2>{error}</h2>
         ) : (
-          <ImageGallery pictures={this.state.pictures} />
+          <div>
+            <ul className="ImageGallery">
+              <li>{pictures}</li>
+              {/* {pictures.map((picture) => 
+          <li key={picture.id}>
+            <img src={picture.webformatURL } alt="" width="200" height="200"/>
+          </li>)} */}
+
+              {/* <p>{this.props.pictures}</p> */}
+            </ul>
+          </div>
         )}
 
         {/* // {this.state.loading && <h1>Загружаем...</h1>} */}
