@@ -1,142 +1,136 @@
 // import './App.css';
 import React, { Component } from "react";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+
 import Loader from "react-loader-spinner";
 
 import Searchbar from "./components/Searchbar/Searchbar";
-// import ImageGallery from "./components/ImageGallery/ImageGallery";
+import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Modal from "./components/Modal/Modal";
 import Button from "./components/Button/Button";
 
-const CustomLoader = () => {
-  return (
-    <Loader
-      type="Bars"
-      color="#00BFFF"
-      height={100}
-      width={100}
-      timeout={3000}
-    />
-  );
-};
+// const CustomLoader = () => {
+//   return (
+//     <Loader
+//       type="Bars"
+//       color="#00BFFF"
+//       height={100}
+//       width={100}
+//       timeout={3000}
+//     />
+//   );
+// };
 
 class App extends Component {
   state = {
+    search: "",
     pictures: [],
-    searchPictures: null,
-    loading: false,
-    showModal: false,
     error: null,
     currentPage: 1,
+    loading: false,
+    showModal: false,
+    largeImageId: null,
+    largeImage: [],
   };
 
-  // componentDidMount() {
-
-  // (async () => {
-  //   const gallery = await this.fetchPictures();
-  //   try {
-
-  //     this.setState({pictures: gallery.data.hits, loading: false})
-  //     console.log("gallery", gallery)
-  //   }
-  //   catch(error) {
-  //     this.setState({error: gallery.data.status, loading: false})
-  //     console.log("error")
-  //   }
-  // })();
-  // };
+  componentDidMount() {}
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.currentPage !== this.state.currentPage) {
-      (async () => {
-        this.setState({ loading: true });
-        const gallery = await this.fetchPictures(this.state.currentPage);
-
-        try {
-          this.setState({
-            pictures: [...prevState.pictures, ...gallery.data.hits],
-            loading: false,
-          });
-          console.log("gallery", gallery);
-        } catch (error) {
-          this.setState({ error: gallery.data.status, loading: false });
-          console.log("error");
-        }
-      })();
+    if (prevState.search !== this.state.search) {
+      this.fetchImages(false);
     }
   }
 
-  fetchPictures = (page = 1) => {
-    return axios.get(
-      `https://pixabay.com/api/?q=${this.state.pictures}&page=${page}&key=22012184-6924baf220c56a628f4f15ef2&image_type=photo&orientation=horizontal&per_page=12`
-    );
+  onSearch = (search) => {
+    this.setState({ search, pictures: [], currentPage: 1 });
   };
 
-  nextPage = () => {
-    this.setState({ currentPage: this.state.currentPage + 1 });
+  fetchImagesWithScroll = () => {
+    this.fetchImages(true);
   };
 
-  handleFormSubmit = (pictures) => {
-    console.log("pictures", pictures);
-    // console.log(this.state.pictures)
-    this.setState({ pictures });
+  fetchImages = (request = "", currentPage = 1) => {
+    return fetch(
+      `https://pixabay.com/api/?q=${request}&page=${currentPage}&key=13128632-519e28f670cc6f8f58c4d9c9f&image_type=photo&orientation=horizontal&per_page=12`
+    )
+      .then((x) => new Promise((resolve) => setTimeout(() => resolve(x), 1000))) // Задержка добавлена для тестирования Loader
+      .then((res) => res.json())
+      .then((data) => data.hits);
   };
 
-  toggleModal = () => {
-    this.setState(({ showModal }) => ({
-      showModal: !showModal,
-    }));
+  fetchImages = (scroll) => {
+    this.setState({ isLoading: true });
+    const { search, currentPage } = this.state;
+
+    this.fetchImages(search, currentPage)
+      .then((pictures) => {
+        this.setState((state) => ({
+          pictures: [...state.pictures, ...pictures],
+          currentPage: state.currentPage + 1,
+        }));
+        return pictures[0];
+      })
+      .catch((error) => {
+        this.setState({ error });
+      })
+      .finally(() => {
+        this.setState({ isLoading: false });
+      });
+    // .then(firstLoadedImage => {
+    //   if (scroll) {
+    //     const { id } = firstLoadedImage;
+
+    //     const y =
+    //       document.getElementById(id).getBoundingClientRect().top +
+    //       window.scrollY -
+    //       80;
+    //     window.scrollTo({
+    //       top: y,
+    //       behavior: 'smooth',
+    //     });
+    //   }
+    // });
   };
+
+  findPicture = () => {
+    const largeImg = this.state.pictures.find((pictures) => {
+      return pictures.id === this.state.largeImageId;
+    });
+    return largeImg;
+  };
+
+  openModal = (e) => {
+    this.setState({
+      showModal: true,
+      largeImageId: Number(e.currentTarget.id),
+    });
+  };
+
+  closeModal = () => this.setState({ showModal: false });
 
   render() {
-    const { pictures, showModal, loading, error } = this.state;
+    const { loading, pictures, showModal, largeImageId } = this.state;
 
     return (
-      <>
-        <Searchbar
-          onSubmit={this.handleFormSubmit}
-          pictures={this.state.pictures}
-        />
-
-        {loading && <CustomLoader />}
-
-        {error ? (
-          <h2>{error}</h2>
-        ) : (
-          <div>
-            <ul className="ImageGallery">
-              <li>{pictures}</li>
-              {/* {pictures.map((picture) => 
-          <li key={picture.id}>
-            <img src={picture.webformatURL } alt="" width="200" height="200"/>
-          </li>)} */}
-
-              {/* <p>{this.props.pictures}</p> */}
-            </ul>
-          </div>
+      // <div className={styles.App}>
+      <div>
+        <Searchbar onSubmit={this.onSearch} />
+        <ImageGallery openModal={this.openModal} pictures={pictures} />
+        {loading && <Loader />}
+        {pictures.length > 0 && (
+          <Button fetchImages={this.fetchImagesWithScroll} />
         )}
-
-        {/* // {this.state.loading && <h1>Загружаем...</h1>} */}
-        {/* // {this.state.picture && <div>Картинки</div>} */}
-
-        {/* // <ImageGalleryItem/> */}
-        {/* // <Loader/> */}
-
-        {/* <button type="button" onClick={this.nextPage}>Load more</button> */}
-
-        {/* <Button onClick={this.toggleModal} content={"Открыть модалку"} /> */}
-
-        {/* {showModal && (
-              <Modal onClose={this.toggleModal}>
-                <h1>Заголовок</h1>
-                <Button onClick={this.toggleModal} content={"Закрыть модалку"} />
-              </Modal>
-            )} */}
-
-        <ToastContainer autoClose={3000} />
-      </>
+        {showModal && (
+          <Modal largeImageId={largeImageId} onClose={this.closeModal}>
+            <img
+              src={this.findPicture().largeImageURL}
+              alt={this.findPicture().tags}
+            />
+          </Modal>
+        )}
+        {/* <ToastContainer autoClose={3000} /> */}
+      </div>
     );
   }
 }

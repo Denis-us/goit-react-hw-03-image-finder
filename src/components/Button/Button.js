@@ -1,10 +1,10 @@
 import React from "react";
-// import styles from "./Button.module.css";
+import styles from "./Button.module.css";
 
-const Button = ({ onClick, content }) => {
+const Button = ({ fetchImages }) => {
   return (
-    <button type="button" onClick={onClick}>
-      {content}
+    <button type="button" className={styles.Button} onClick={fetchImages}>
+      Load more...
     </button>
   );
 };
