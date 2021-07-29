@@ -11,8 +11,6 @@ export default class Modal extends Component {
     children: PropTypes.node.isRequired,
   };
 
-  // backdropRef = createRef();
-
   componentDidMount() {
     window.addEventListener("keydown", this.handleKeyDown);
   }
@@ -37,10 +35,7 @@ export default class Modal extends Component {
     const { children } = this.props;
     return createPortal(
       <div className={styles.Overlay} onClick={this.handleBackdropClick}>
-        <div className={styles.Modal}>
-          {children}
-          {/* <img src="" alt="" /> */}
-        </div>
+        <div className={styles.Modal}>{children}</div>
       </div>,
       modalRoot
     );

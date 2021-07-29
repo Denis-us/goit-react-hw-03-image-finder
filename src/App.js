@@ -1,26 +1,29 @@
-// import './App.css';
+import "./App.css";
 import React, { Component } from "react";
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import Loader from "react-loader-spinner";
 
+import * as fetch from "./Fetch/Fetch";
 import Searchbar from "./components/Searchbar/Searchbar";
 import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Modal from "./components/Modal/Modal";
 import Button from "./components/Button/Button";
 
-// const CustomLoader = () => {
-//   return (
-//     <Loader
-//       type="Bars"
-//       color="#00BFFF"
-//       height={100}
-//       width={100}
-//       timeout={3000}
-//     />
-//   );
-// };
+const CustomLoader = () => {
+  return (
+    <div class="Loader">
+      <Loader
+        type="Bars"
+        color="#00BFFF"
+        height={100}
+        width={100}
+        timeout={3000}
+      />
+    </div>
+  );
+};
 
 class App extends Component {
   state = {
@@ -50,20 +53,12 @@ class App extends Component {
     this.fetchImages(true);
   };
 
-  fetchImages = (request = "", currentPage = 1) => {
-    return fetch(
-      `https://pixabay.com/api/?q=${request}&page=${currentPage}&key=13128632-519e28f670cc6f8f58c4d9c9f&image_type=photo&orientation=horizontal&per_page=12`
-    )
-      .then((x) => new Promise((resolve) => setTimeout(() => resolve(x), 1000))) // Задержка добавлена для тестирования Loader
-      .then((res) => res.json())
-      .then((data) => data.hits);
-  };
-
-  fetchImages = (scroll) => {
-    this.setState({ isLoading: true });
+  fetchImages = () => {
+    this.setState({ loading: true });
     const { search, currentPage } = this.state;
 
-    this.fetchImages(search, currentPage)
+    fetch
+      .fetchImages(search, currentPage)
       .then((pictures) => {
         this.setState((state) => ({
           pictures: [...state.pictures, ...pictures],
@@ -75,22 +70,8 @@ class App extends Component {
         this.setState({ error });
       })
       .finally(() => {
-        this.setState({ isLoading: false });
+        this.setState({ loading: false });
       });
-    // .then(firstLoadedImage => {
-    //   if (scroll) {
-    //     const { id } = firstLoadedImage;
-
-    //     const y =
-    //       document.getElementById(id).getBoundingClientRect().top +
-    //       window.scrollY -
-    //       80;
-    //     window.scrollTo({
-    //       top: y,
-    //       behavior: 'smooth',
-    //     });
-    //   }
-    // });
   };
 
   findPicture = () => {
@@ -113,11 +94,10 @@ class App extends Component {
     const { loading, pictures, showModal, largeImageId } = this.state;
 
     return (
-      // <div className={styles.App}>
-      <div>
+      <div class="App">
         <Searchbar onSubmit={this.onSearch} />
         <ImageGallery openModal={this.openModal} pictures={pictures} />
-        {loading && <Loader />}
+        {loading && <CustomLoader />}
         {pictures.length > 0 && (
           <Button fetchImages={this.fetchImagesWithScroll} />
         )}
@@ -129,7 +109,7 @@ class App extends Component {
             />
           </Modal>
         )}
-        {/* <ToastContainer autoClose={3000} /> */}
+        <ToastContainer autoClose={3000} />
       </div>
     );
   }
