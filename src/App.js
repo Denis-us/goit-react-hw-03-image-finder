@@ -3,27 +3,12 @@ import React, { Component } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Loader from "react-loader-spinner";
-
 import * as fetch from "./Fetch/Fetch";
 import Searchbar from "./components/Searchbar/Searchbar";
 import ImageGallery from "./components/ImageGallery/ImageGallery";
 import Modal from "./components/Modal/Modal";
 import Button from "./components/Button/Button";
-
-const CustomLoader = () => {
-  return (
-    <div class="Loader">
-      <Loader
-        type="Bars"
-        color="#00BFFF"
-        height={100}
-        width={100}
-        timeout={3000}
-      />
-    </div>
-  );
-};
+import CustomLoader from "./components/Loader/Loader";
 
 class App extends Component {
   state = {
@@ -53,7 +38,7 @@ class App extends Component {
     this.fetchImages(true);
   };
 
-  fetchImages = () => {
+  fetchImages = (scroll) => {
     this.setState({ loading: true });
     const { search, currentPage } = this.state;
 
@@ -68,6 +53,20 @@ class App extends Component {
       })
       .catch((error) => {
         this.setState({ error });
+      })
+      .then((loadedImage) => {
+        if (scroll) {
+          const { id } = loadedImage;
+
+          const y =
+            document.getElementById(id).getBoundingClientRect().top +
+            window.scrollY -
+            80;
+          window.scrollTo({
+            top: y,
+            behavior: "smooth",
+          });
+        }
       })
       .finally(() => {
         this.setState({ loading: false });
