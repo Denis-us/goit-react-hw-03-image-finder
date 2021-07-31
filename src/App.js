@@ -54,16 +54,10 @@ class App extends Component {
       .catch((error) => {
         this.setState({ error });
       })
-      .then((loadedImage) => {
+      .then(() => {
         if (scroll) {
-          const { id } = loadedImage;
-
-          const y =
-            document.getElementById(id).getBoundingClientRect().top +
-            window.scrollY -
-            80;
           window.scrollTo({
-            top: y,
+            top: document.documentElement.scrollHeight,
             behavior: "smooth",
           });
         }
